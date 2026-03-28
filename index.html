@@ -719,9 +719,15 @@ out geom;`;
       if (!resp.ok) continue;
       const data = await resp.json();
       if (data.elements && data.elements.length > 0) {
-        try { localStorage.setItem(LS_OSM, JSON.stringify({ ts: Date.now(), elements: data.elements })); } catch(e) {}
-        setStatus(`Live OSM data fetched (${data.elements.length} ways) — matching streams…`, 'loading');
-        return { elements: data.elements, fromCache: false };
+        // Slim down before caching — only keep name + geometry, drop all other tags
+        const slim = data.elements.map(w => ({
+          id: w.id,
+          tags: { name: w.tags && w.tags.name },
+          geometry: w.geometry,
+        }));
+        try { localStorage.setItem(LS_OSM, JSON.stringify({ ts: Date.now(), elements: slim })); } catch(e) {}
+        setStatus(`Live OSM data fetched (${slim.length} ways) — matching streams…`, 'loading');
+        return { elements: slim, fromCache: false };
       }
     } catch(e) { /* try next */ }
   }
