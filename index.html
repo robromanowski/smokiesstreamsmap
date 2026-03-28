@@ -720,6 +720,7 @@ out geom;`;
       const data = await resp.json();
       if (data.elements && data.elements.length > 0) {
         try { localStorage.setItem(LS_OSM, JSON.stringify({ ts: Date.now(), elements: data.elements })); } catch(e) {}
+        setStatus(`Live OSM data fetched (${data.elements.length} ways) — matching streams…`, 'loading');
         return { elements: data.elements, fromCache: false };
       }
     } catch(e) { /* try next */ }
@@ -1477,7 +1478,7 @@ async function init() {
       setStatus('OSM data unavailable — streams shown without map geometry', 'error');
     } else {
       osmOk = true;
-      setStatus(`Matching streams to ${osmWays.length} OSM ways…`, 'loading');
+      // fetchOSMWaterways already set the cache/live status message — don't overwrite it
     }
 
     if (osmOk) {
