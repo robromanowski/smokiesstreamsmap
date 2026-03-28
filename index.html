@@ -1160,12 +1160,19 @@ async function openElevPanel(stream) {
   S.activeStream = stream;
 
   try {
-    const allCoords = flattenSegments(stream.segments);
-    if (allCoords.length < 2) { loadEl.textContent = 'Not enough geometry.'; return; }
+    const segs = stream.segments.filter(s => s.length >= 2);
+    if (!segs.length) { loadEl.textContent = 'Not enough geometry.'; return; }
 
-    // Sample ~80 points along the stream
-    const N = Math.min(80, Math.max(20, Math.floor(allCoords.length / 3)));
-    const samples = samplePolyline(allCoords, N);
+    // Sample each segment independently (avoids cross-gap interpolation)
+    const totalLen = segs.reduce((sum, seg) => sum + polylineLength(seg), 0);
+    if (totalLen < 10) { loadEl.textContent = 'Stream too short.'; return; }
+    const N = Math.min(80, Math.max(20, Math.ceil(totalLen / 80)));
+    const samples = [];
+    for (const seg of segs) {
+      const segLen = polylineLength(seg);
+      const segN = Math.max(2, Math.round(N * segLen / totalLen));
+      samples.push(...samplePolyline(seg, segN));
+    }
 
     // Fetch elevations in chunks of 100
     const elevations = await fetchElevations(samples, elevAbort.signal);
