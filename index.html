@@ -822,22 +822,49 @@ function buildStreamSegments(streams, parkGeo) {
   }
 }
 
-// Flatten all segments of a stream into one coord array for profiling
+// Flatten all segments greedily by proximity, skipping duplicate/reversed ways
 function flattenSegments(segments) {
   if (!segments.length) return [];
-  // Join segments — leave a small gap marker isn't needed for elevation
-  const all = [];
+  if (segments.length === 1) return [...segments[0]];
+
+  // Deduplicate nearly-identical segments (same start/end within 20m)
+  const unique = [];
   for (const seg of segments) {
-    if (all.length > 0) {
-      // Only concatenate if fairly close to previous end
-      const prev = all[all.length-1];
-      const next = seg[0];
-      const d = haversine(prev[0],prev[1],next[0],next[1]);
-      if (d > 500) all.push(null); // null = gap (handled in sampling)
-    }
-    all.push(...seg);
+    const s0 = seg[0], sN = seg[seg.length-1];
+    const isDup = unique.some(u => {
+      const u0 = u[0], uN = u[u.length-1];
+      return (haversine(s0[0],s0[1],u0[0],u0[1]) < 20 && haversine(sN[0],sN[1],uN[0],uN[1]) < 20) ||
+             (haversine(s0[0],s0[1],uN[0],uN[1]) < 20 && haversine(sN[0],sN[1],u0[0],u0[1]) < 20);
+    });
+    if (!isDup) unique.push(seg);
   }
-  return all.filter(p=>p!==null);
+
+  // Greedily chain segments: each step pick the next segment whose nearest
+  // endpoint is closest to the current tail
+  const used = new Array(unique.length).fill(false);
+  const chain = [...unique[0]];
+  used[0] = true;
+
+  for (let iter = 1; iter < unique.length; iter++) {
+    const tail = chain[chain.length-1];
+    let bestIdx = -1, bestDist = Infinity, bestReverse = false;
+    for (let i = 0; i < unique.length; i++) {
+      if (used[i]) continue;
+      const seg = unique[i];
+      const dStart = haversine(tail[0],tail[1],seg[0][0],seg[0][1]);
+      const dEnd   = haversine(tail[0],tail[1],seg[seg.length-1][0],seg[seg.length-1][1]);
+      if (dStart < bestDist) { bestDist = dStart; bestIdx = i; bestReverse = false; }
+      if (dEnd   < bestDist) { bestDist = dEnd;   bestIdx = i; bestReverse = true;  }
+    }
+    if (bestIdx === -1) break;
+    used[bestIdx] = true;
+    const next = bestReverse ? [...unique[bestIdx]].reverse() : unique[bestIdx];
+    // Only stitch if the gap is reasonable (< 2km); otherwise stop
+    if (bestDist > 2000) break;
+    chain.push(...next);
+  }
+
+  return chain;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1321,10 +1348,16 @@ function drawElevChart(svg, profile, dists, samples) {
 function drawSlopeOverlay(samples, profile, dists) {
   clearSlopeOverlay();
   if (samples.length < 2) return;
+  // Max gap between consecutive samples before we refuse to draw a connecting line
+  const MAX_GAP_M = 300;
   const layers = [];
   for (let i=1;i<samples.length;i++) {
     const d = dists[i]-dists[i-1];
     if (d < 1) continue;
+    // Skip if the actual geographic distance between sample points is too large
+    // (indicates a stitch across a gap between disconnected OSM ways)
+    const geoD = haversine(samples[i-1][0],samples[i-1][1],samples[i][0],samples[i][1]);
+    if (geoD > MAX_GAP_M) continue;
     const rise = Math.abs(profile[i]-profile[i-1]);
     const pct  = rise/d*100;
     const color = slopeColor(pct);
