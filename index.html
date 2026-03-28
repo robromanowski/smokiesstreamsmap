@@ -693,8 +693,9 @@ async function fetchOSMWaterways() {
     if (raw) {
       const { ts, elements } = JSON.parse(raw);
       if (Date.now() - ts < OSM_TTL && Array.isArray(elements) && elements.length > 0) {
-        setStatus('Map data loaded from cache — matching streams…', 'loading');
-        return elements;
+        const age = Math.round((Date.now() - ts) / (1000 * 60 * 60));
+        setStatus(`OSM data from cache (${age}h old) — matching streams…`, 'loading');
+        return { elements, fromCache: true };
       }
     }
   } catch(e) {}
@@ -719,11 +720,11 @@ out geom;`;
       const data = await resp.json();
       if (data.elements && data.elements.length > 0) {
         try { localStorage.setItem(LS_OSM, JSON.stringify({ ts: Date.now(), elements: data.elements })); } catch(e) {}
-        return data.elements;
+        return { elements: data.elements, fromCache: false };
       }
     } catch(e) { /* try next */ }
   }
-  return [];
+  return { elements: [], fromCache: false };
 }
 
 function buildOSMIndex(ways) {
@@ -1463,11 +1464,12 @@ async function init() {
   // 2. Fetch OSM waterways and park boundary in parallel
   let osmOk = false;
   try {
-    const [osmWays, parkGeo] = await Promise.all([
+    const [osmResult, parkGeo] = await Promise.all([
       fetchOSMWaterways(),
       fetchParkBoundary(),
     ]);
 
+    const { elements: osmWays, fromCache } = osmResult;
     S.parkGeo  = parkGeo;
     S.osmIndex = buildOSMIndex(osmWays);
 
@@ -1475,7 +1477,7 @@ async function init() {
       setStatus('OSM data unavailable — streams shown without map geometry', 'error');
     } else {
       osmOk = true;
-      setStatus(`Matching ${S.processed.length} streams to ${osmWays.length} OSM ways…`, 'loading');
+      setStatus(`Matching streams to ${osmWays.length} OSM ways…`, 'loading');
     }
 
     if (osmOk) {
@@ -1487,7 +1489,8 @@ async function init() {
       renderStreams(S.processed);
       renderSidebar();
 
-      setStatus(`${matched} of ${S.processed.length} streams mapped`, 'ok');
+      const src = fromCache ? '(cached)' : '(live from OSM)';
+      setStatus(`${matched} of ${S.processed.length} streams mapped ${src}`, 'ok');
     } else {
       renderSidebar();
     }
