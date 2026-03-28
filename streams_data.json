@@ -1,0 +1,758 @@
+[
+  {
+    "NAME": "Middle Prong of the Little Pigeon River",
+    "SIZE": "Large at the park boundary, smaller upstream",
+    "FISHING PRESSURE": "Heavy",
+    "FISHING QUALITY": "Fair, at its best in early spring",
+    "ACCESS": "Greenbrier Road; Ramsey Prong Road Trail",
+    "USGS QUADS": "Mt. LeConte, NC–TN; Mt. Guyot, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout"
+  },
+  {
+    "NAME": "Porters Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Porters Creek Road",
+    "USGS QUADS": "Mt. LeConte, NC–TN; Mt. Guyot, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Ramsey Prong",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderately light",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "Ramsey Cascades Trail",
+    "USGS QUADS": "Mt. Guyot, NC-TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Buck Fork",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Good, particularly in late summer",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Mt. Guyot, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Eagle Rock Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Mt. Guyot, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Chapman Prong",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderately light",
+    "FISHING QUALITY": "Fairly good, at its best in late summer",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Mt. LeConte, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "West Prong of The Little Pigeon River",
+    "SIZE": "Large to medium",
+    "FISHING PRESSURE": "Moderate to surprisingly light",
+    "FISHING QUALITY": "Very good to excellent",
+    "ACCESS": "Newfound Gap Road",
+    "USGS QUADS": "Mt. LeConte, NC–TN; Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout"
+  },
+  {
+    "NAME": "Dudley Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Good to fair",
+    "ACCESS": "At the park boundary from TN 73",
+    "USGS QUADS": "Mt. LeConte, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout"
+  },
+  {
+    "NAME": "Roaring Fork",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light to moderate",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Roaring Fork Motor Nature Trail, Trillium Gap Trail",
+    "USGS QUADS": "Mt. LeConte, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "LeConte Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "Roaring Fork Motor Nature Trail, Rainbow Falls Trail",
+    "USGS QUADS": "Mt. LeConte, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout"
+  },
+  {
+    "NAME": "Road Prong",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Newfound Gap Road; Road Prong Trail",
+    "USGS QUADS": "Mt. LeConte, NC–TN; Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Walker Camp Prong",
+    "SIZE": "Small to medium",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Poor",
+    "ACCESS": "Newfound Gap Road; Alum Camp Trail",
+    "USGS QUADS": "Mt. LeConte, NC–TN; Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout"
+  },
+  {
+    "NAME": "Little River",
+    "SIZE": "Large",
+    "FISHING PRESSURE": "Heavy",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Little River Trail",
+    "USGS QUADS": "Wear Cove, Silers Bald, Clingmans Dome, Gatlinburg",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout"
+  },
+  {
+    "NAME": "East Prong of Little River",
+    "SIZE": "Large",
+    "FISHING PRESSURE": "Heavy",
+    "FISHING QUALITY": "Very good, particularly for brown trout",
+    "ACCESS": "Little River Road (formerly TN 73); all other access is limited to trail use.",
+    "USGS QUADS": "Clingmans Dome, NC–TN; Wear Cove, TN; Silers Bald, NC–TN; Gatlinburg, TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout, Brook Trout"
+  },
+  {
+    "NAME": "Jakes Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate to light",
+    "FISHING QUALITY": "Fair to good",
+    "ACCESS": "Jake's Creek Road; Jake's Creek Trail",
+    "USGS QUADS": "Gatlinburg, TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Fish Camp Prong",
+    "SIZE": "Moderately small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Good to excellent",
+    "ACCESS": "Little River Truck Road",
+    "USGS QUADS": "Silers Bald, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Rough Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Good to very good",
+    "ACCESS": "Little River Truck Road",
+    "USGS QUADS": "Clingmans Dome NC–TN; Silers Bald NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Middle Prong of Little River",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderately heavy",
+    "FISHING QUALITY": "Very good to excellent",
+    "ACCESS": "Accessible by auto from its mouth",
+    "USGS QUADS": "Thunderhead, NC–TN; Silers Bald, NC–TN; Wear Cove, TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Spruce Flats Branch",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "3.5 miles up from the mouth of Middle Prong",
+    "USGS QUADS": "Wear Cove, TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Thunderhead Prong",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Fair",
+    "FISHING QUALITY": "Fair to good",
+    "ACCESS": "Defeat Ridge Trail",
+    "USGS QUADS": "Thunderhead Mt., NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Sams Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Defeat Ridge Trail",
+    "USGS QUADS": "Thunderhead Mt., NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Lynn Camp Prong",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Davis Ridge Trail",
+    "USGS QUADS": "Thunderhead Mt., NC–TN; Silers Bald, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "West Prong of Little River",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderately light",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Auto access via the Cades Cove Road; foot travel via West Prong Trail.",
+    "USGS QUADS": "Wear Cove, TN; Cades Cove, NC–TN; Thunderhead Mt., NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Meigs Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate to very light",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Meigs Creek Trail and at its mouth at Little River",
+    "USGS QUADS": "Thunderhead Mt., NC–TN; Silers Bald, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Abrams Creek",
+    "SIZE": "At the mouth, the stream is large; in the Cades Cove area it is medium",
+    "FISHING PRESSURE": "Moderate to very heavy",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "TN 72, Happy Valley Road; Rabbit Creek Trail; Cooper Road Trail; Abrams Falls Trail; Anthony Creek Trail",
+    "USGS QUADS": "Cades Cove, NC–TN; Thunderhead, NC–TN; Calderwood, NC–TN; Blockhouse, TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout"
+  },
+  {
+    "NAME": "Panther Creek",
+    "SIZE": "Medium to small",
+    "FISHING PRESSURE": "Light to moderate",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Parsons Branch Road",
+    "USGS QUADS": "Calderwood, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Rabbit Creek",
+    "SIZE": "Fairly small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Parsons Branch Road; Rabbit Creek Trail",
+    "USGS QUADS": "Calderwood, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout"
+  },
+  {
+    "NAME": "Mill Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "Cades Cove Loop Road",
+    "USGS QUADS": "Cades Cove, TN",
+    "TROUT_TYPES": "Rainbow Trout"
+  },
+  {
+    "NAME": "Twentymile Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderately light",
+    "FISHING QUALITY": "Good all season",
+    "ACCESS": "Twentymile Creek Trail",
+    "USGS QUADS": "Tapoco, NC; Fontana, NC",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Eagle Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderately light to heavy",
+    "FISHING QUALITY": "Very good, particularly upstream from Pinnacle Creek",
+    "ACCESS": "Fontana Lake; Eagle Creek Trail",
+    "USGS QUADS": "Fontana Dam, NC; Thunderhead, NC–TN; Cades Cove, NC–TN; Tuskeegee, NC",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout, Brook Trout"
+  },
+  {
+    "NAME": "Pinnacle Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "Remote; Pinnacle Creek Trail",
+    "USGS QUADS": "Fontana Dam, NC; Thunderhead, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Ekaneetlee Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Fontana Dam, NC; Cades Cove, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Tub Mill Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Cades Cove, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Gunna Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Remote; Eagle Creek Trail",
+    "USGS QUADS": "Cades Cove, NC–TN; Thunderhead, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Hazel Creek",
+    "SIZE": "Large",
+    "FISHING PRESSURE": "Moderate to very heavy in the lower portion; relatively light to moderate in the upper portion above 2,500 feet",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Fontana Lake; Hazel Creek Trail",
+    "USGS QUADS": "Tuskeegee, NC; Thunderhead, NC–TN; Silers Bald, NC–TN; Noland NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout, Brook Trout"
+  },
+  {
+    "NAME": "Sugar Fork",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Fairly light",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "Hazel Creek Trail; Sugar Fork Trail",
+    "USGS QUADS": "Tuskeegee, NC; Thunderhead, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Bone Valley Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderately light",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Bone Valley Trail",
+    "USGS QUADS": "Tuskeegee, NC; Thunderhead, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Walker Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Unnamed path",
+    "USGS QUADS": "Thunderhead, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Proctor Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Unnamed path",
+    "USGS QUADS": "Thunderhead, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Forney Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderate to light",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Fontana Lake; Forney Creek Trail",
+    "USGS QUADS": "Noland Creek, NC; Silers Bald, NC–TN, Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Bear Branch",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Noland Creek, NC",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Bee Gum Branch",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Fairly good",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Noland Creek, NC",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Jonas Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Silers Bald, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Huggins Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Silers Bald, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Noland Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderate near the mouth of the stream, somewhat less intense farther upstream",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "North Shore Road; Noland Creek Trail",
+    "USGS QUADS": "Clingmans Dome, NC–TN; Bryson City, NC–TN; Noland Creek, NC; Silers Bald, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Bearpen Branch",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Noland Creek, NC",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Clingmans Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Very good to excellent",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Deep Creek",
+    "SIZE": "Large",
+    "FISHING PRESSURE": "Moderately heavy near the Deep Creek campground, moderate in the backcountry",
+    "FISHING QUALITY": "Very good to excellent",
+    "ACCESS": "Deep Creek Road Trail",
+    "USGS QUADS": "Bryson City, NC; Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout, Brook Trout"
+  },
+  {
+    "NAME": "Indian Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderately heavy",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Indian Creek Trail; Deep Creek Campground",
+    "USGS QUADS": "Bryson City, NC; Smokemont NC–TN; Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Pole Road Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate to fair",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "Pole Road Trail",
+    "USGS QUADS": "Bryson City, NC; Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "The Left Fork of Deep Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Very good; at its best from late spring through early fall",
+    "ACCESS": "Unmaintained Trail (see Access)",
+    "USGS QUADS": "Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Nettle Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Fair to poor",
+    "ACCESS": "Remote; Deep Creek Campground",
+    "USGS QUADS": "Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Beetree Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Fair to poor",
+    "ACCESS": "Remote; Deep Creek Campground",
+    "USGS QUADS": "Clingmans Dome, NC-TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Rocky Fork",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate to light",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Remote; Deep Creek Campground",
+    "USGS QUADS": "Clingmans Dome, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Sahlee Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Remote; Deep Creek Campground",
+    "USGS QUADS": "Clingmans Dome, NC-TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Oconaluftee River",
+    "SIZE": "Large",
+    "FISHING PRESSURE": "Moderately heavy to heavy",
+    "FISHING QUALITY": "Very good; the lower reaches of the stream are noted for producing trophy brown trout",
+    "ACCESS": "Newfound Gap Road",
+    "USGS QUADS": "Clingmans Dome, NC–TN; Mt. Guyot, NC-TN; Smokemont,NC–TN; Bunches Bald, NC; Luftee Knob, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout"
+  },
+  {
+    "NAME": "Raven Fork",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Light to moderate",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Smokemont, NC–TN; Mt. Guyot, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Straight Fork",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light to moderate",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Round Bottom Road",
+    "USGS QUADS": "Luftee Knob, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Mingus Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Marginal to fair",
+    "ACCESS": "Roadside; Remote",
+    "USGS QUADS": "Smokemont, NC",
+    "TROUT_TYPES": "Rainbow Trout"
+  },
+  {
+    "NAME": "Bradley Fork",
+    "SIZE": "Large at its junction with the Oconaluftee; smaller a short distance upstream from that point",
+    "FISHING PRESSURE": "Heavy",
+    "FISHING QUALITY": "Excellent",
+    "ACCESS": "Smokemont Campground Road; Bradley Fork Trail",
+    "USGS QUADS": "Smokemont, NC; Mt. Guyot, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout, Brook Trout"
+  },
+  {
+    "NAME": "Chasteen Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderately light",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Chasteen Creek Trail",
+    "USGS QUADS": "Smokemont, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Taywa Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Fair to good",
+    "ACCESS": "Taywa Creek Trail",
+    "USGS QUADS": "Smokemont, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Collins Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "New Found Gap Road; Collins Creek Trail",
+    "USGS QUADS": "Smokemont, NC",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Kephart Prong",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderately light",
+    "FISHING QUALITY": "Very good to excellent",
+    "ACCESS": "Kephart Prong Trail; Grassy Branch Trail; Sweet Heifer Creek Trail",
+    "USGS QUADS": "Smokemont, NC; Mt. Guyot, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Kanati Fork",
+    "SIZE": "Very small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "Kanati Fork Trail",
+    "USGS QUADS": "Smokemont, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Cataloochee Creek",
+    "SIZE": "Large",
+    "FISHING PRESSURE": "Moderate to light",
+    "FISHING QUALITY": "Excellent; particularly good early and late in the season",
+    "ACCESS": "New Cataloochee Road",
+    "USGS QUADS": "Dellwood, NC; Cove Creek Gap, NC; Bunches Bald, NC; Luftee Knob, NC",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout, Brook Trout"
+  },
+  {
+    "NAME": "Little Cataloochee Creek",
+    "SIZE": "Medium to small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Old NC 284; Little Cataloochee Creek Trail",
+    "USGS QUADS": "Cove Creek Gap, NC",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Caldwell Fork",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate near the campground; farther upstream the pressure decreases",
+    "FISHING QUALITY": "Fish are small but plentiful",
+    "ACCESS": "Caldwell Fork Trail",
+    "USGS QUADS": "Bunches Bald, NC; Dellwood, NC",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Palmer Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Moderate to light",
+    "FISHING QUALITY": "Very good to excellent",
+    "ACCESS": "Palmer Creek Trail",
+    "USGS QUADS": "Bunches Bald, NC; Luftee Knob, NC",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Rough Fork",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Old Palmer Chapel Road; Rough Fork Trail",
+    "USGS QUADS": "Bunches Bald, NC; Dellwood, NC; Cove Creek Gap, NC",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Pretty Hollow Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Pretty Hollow Gap Trail",
+    "USGS QUADS": "Luftee Knob, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Big Creek",
+    "SIZE": "Large",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Fair (fishable miles: approximately 11)",
+    "ACCESS": "State Road 1332; Big Creek Trail",
+    "USGS QUADS": "Waterville, NC–TN; Luftee Knob, NC–TN",
+    "TROUT_TYPES": "Rainbow Trout, Brown Trout"
+  },
+  {
+    "NAME": "Mouse Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light to very light",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "At its mouth at Big Creek",
+    "USGS QUADS": "Luftee Knob, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Gunter Fork",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "Gunter Fork Trail",
+    "USGS QUADS": "Luftee Knob, NC–TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Yellow Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Closed",
+    "FISHING QUALITY": "Good; the hot summer months are usually productive",
+    "ACCESS": "Yellow Creek Trail",
+    "USGS QUADS": "Luftee Knob, NC–TN",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Cosby Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderate",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "TN 32; Cosby Campground Road; Cosby Creek Trail",
+    "USGS QUADS": "Luftee Knob, NC; Hartsford, TN",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Indian Camp Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "N/A",
+    "FISHING QUALITY": "Very good",
+    "ACCESS": "Laurel Springs Road; Indian Camp Creek Trail",
+    "USGS QUADS": "Jones Cove, TN; Mt. Guyot, TN",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Hesse Creek",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Fair to good",
+    "ACCESS": "Fairly remote",
+    "USGS QUADS": "Kinel Springs, TN; Blockhouse, TN",
+    "TROUT_TYPES": "Rainbow Trout"
+  },
+  {
+    "NAME": "Parson Branch",
+    "SIZE": "Medium",
+    "FISHING PRESSURE": "Relatively light",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "Parson Branch Road",
+    "USGS QUADS": "Calderwood, TN–NC; Tapoco, TN–NC",
+    "TROUT_TYPES": "Rainbow Trout, Brook Trout"
+  },
+  {
+    "NAME": "Chambers Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Moderately light",
+    "FISHING QUALITY": "Good",
+    "ACCESS": "Remote",
+    "USGS QUADS": "Noland Creek, NC; Tuskeegee, NC",
+    "TROUT_TYPES": "Brook Trout"
+  },
+  {
+    "NAME": "Lands Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "None",
+    "FISHING QUALITY": "Perhaps the best in the park",
+    "ACCESS": "At the mouth of stream at the Tuckasegee River",
+    "USGS QUADS": "Swain County, NC",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Mount Sterling Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Little to none",
+    "FISHING QUALITY": "Good to very good",
+    "ACCESS": "Along NC 284",
+    "USGS QUADS": "Cove Creek Gap, NC",
+    "TROUT_TYPES": "Brook Trout, Rainbow Trout"
+  },
+  {
+    "NAME": "Fighting Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Fair to poor",
+    "ACCESS": "Sugarland parking lot",
+    "USGS QUADS": "Sevier County, TN",
+    "TROUT_TYPES": "Rainbow Trout"
+  },
+  {
+    "NAME": "Tabcat Creek",
+    "SIZE": "Small",
+    "FISHING PRESSURE": "Light",
+    "FISHING QUALITY": "Fair",
+    "ACCESS": "Unnamed Path",
+    "USGS QUADS": "Calderwood, TN–NC",
+    "TROUT_TYPES": "Rainbow Trout"
+  }
+]

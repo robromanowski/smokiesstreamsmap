@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smokies Trout Streams</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f3efe8;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e0d9ce;
+  --header-bg: #2c3e50;
+  --header-text: #ecf0f1;
+  --text: #2c2c2c;
+  --text-muted: #7a7a7a;
+  --card-bg: #ffffff;
+  --card-border: #e8e2d9;
+  --card-hover: #f8f5f0;
+  --card-active: #edf4ed;
+  --pill-text: #ffffff;
+  --scrollbar: #ccc;
+  --shadow: 0 1px 4px rgba(0,0,0,.12);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.15);
+  --radius: 6px;
+  --sidebar-w: 320px;
+  --grade-excellent: #1565c0;
+  --grade-verygood: #27ae60;
+  --grade-good: #f0a500;
+  --grade-fair: #e06c2c;
+  --grade-poor: #c0392b;
+  --trout-rainbow: #e74c3c;
+  --trout-brook: #2980b9;
+  --trout-brown: #8B4513;
+}
+body { font-family: system-ui,-apple-system,'Segoe UI',sans-serif; background: var(--bg); color: var(--text); height: 100dvh; overflow: hidden; }
+
+/* ── Layout ───────────────────────────────────────────────── */
+#app { display: flex; height: 100dvh; }
+#sidebar {
+  width: var(--sidebar-w); min-width: 260px; max-width: 400px;
+  display: flex; flex-direction: column;
+  background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border);
+  transition: background .25s, color .25s;
+  z-index: 10; box-shadow: 2px 0 8px rgba(0,0,0,.08);
+}
+#map-wrap { flex: 1; position: relative; min-width: 0; }
+#map { width: 100%; height: 100%; }
+
+/* ── Sidebar Header ───────────────────────────────────────── */
+#sidebar-header { background: var(--header-bg); color: var(--header-text); padding: 12px 14px 10px; flex-shrink: 0; }
+#sidebar-title { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+#sidebar-title i { font-size: 20px; color: #52b96c; }
+#sidebar-title h1 { font-size: 15px; font-weight: 700; letter-spacing: .3px; line-height: 1.2; }
+#sidebar-title h1 span { display: block; font-size: 10px; font-weight: 400; color: #a8c8b0; letter-spacing: .5px; text-transform: uppercase; margin-top: 1px; }
+
+/* ── Controls ─────────────────────────────────────────────── */
+.ctrl-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+.ctrl-row:last-child { margin-bottom: 0; }
+.ctrl-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: #8eaab0; flex-shrink: 0; }
+.btn-ctrl {
+  font-size: 11px; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.1); color: var(--header-text); cursor: pointer;
+  transition: background .15s; white-space: nowrap;
+}
+.btn-ctrl:hover { background: rgba(255,255,255,.2); }
+.btn-ctrl.active { background: rgba(82,185,108,.35); border-color: #52b96c; }
+.sort-btn.active { background: rgba(82,185,108,.35); border-color: #52b96c; }
+
+/* Grade filter pills in header */
+.pill-filter {
+  font-size: 10px; padding: 2px 7px; border-radius: 20px; border: 1px solid transparent;
+  cursor: pointer; font-weight: 600; transition: opacity .15s, transform .1s;
+  color: var(--pill-text); opacity: .45;
+}
+.pill-filter.active { opacity: 1; transform: scale(1.08); }
+.pill-filter[data-grade="Excellent"]  { background: var(--grade-excellent); }
+.pill-filter[data-grade="Very Good"]  { background: var(--grade-verygood); }
+.pill-filter[data-grade="Good"]       { background: var(--grade-good); }
+.pill-filter[data-grade="Fair"]       { background: var(--grade-fair); }
+.pill-filter[data-grade="Poor"]       { background: var(--grade-poor); }
+
+/* ── Status bar ───────────────────────────────────────────── */
+#status-bar {
+  padding: 5px 12px; font-size: 11px; color: #888; border-bottom: 1px solid var(--card-border);
+  background: #fafaf8; flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+}
+#status-bar.loading { color: #e09a20; }
+#status-bar.error { color: #c0392b; }
+#status-bar.ok { color: #1a9850; }
+#status-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+#status-bar.loading #status-dot { background: #e09a20; animation: pulse 1s infinite; }
+#status-bar.error   #status-dot { background: #c0392b; }
+#status-bar.ok      #status-dot { background: #1a9850; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── Stream List ──────────────────────────────────────────── */
+#stream-list { flex: 1; overflow-y: auto; padding: 6px 8px; }
+#stream-list::-webkit-scrollbar { width: 5px; }
+#stream-list::-webkit-scrollbar-track { background: transparent; }
+#stream-list::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
+
+/* ── Stream Card ──────────────────────────────────────────── */
+.stream-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 8px 10px 7px; margin-bottom: 5px;
+  cursor: pointer; transition: background .12s, border-color .12s, box-shadow .12s;
+  position: relative; user-select: none;
+}
+.stream-card:hover { background: var(--card-hover); border-color: #b0c0b8; box-shadow: var(--shadow); }
+.stream-card.highlighted { background: var(--card-active) !important; border-color: #52b96c; box-shadow: 0 0 0 2px rgba(82,185,108,.3); }
+.stream-card.no-map { opacity: .72; }
+.card-top { display: flex; align-items: flex-start; gap: 6px; }
+.card-name { font-size: 13px; font-weight: 600; line-height: 1.3; flex: 1; min-width: 0; }
+.card-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+.fav-btn { background: none; border: none; cursor: pointer; padding: 2px; font-size: 14px; color: #ccc; transition: color .15s; }
+.fav-btn.active { color: #e6a817; }
+.fav-btn:hover { color: #e6a817; }
+.card-meta { display: flex; align-items: center; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+.grade-pill {
+  font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px;
+  color: var(--pill-text); letter-spacing: .3px; white-space: nowrap;
+}
+.grade-pill.Excellent { background: var(--grade-excellent); }
+.grade-pill.VeryGood  { background: var(--grade-verygood); }
+.grade-pill.Good      { background: var(--grade-good); }
+.grade-pill.Fair      { background: var(--grade-fair); }
+.grade-pill.Poor      { background: var(--grade-poor); }
+.map-badge {
+  font-size: 10px; padding: 1px 6px; border-radius: 20px; border: 1px solid currentColor;
+  white-space: nowrap; font-weight: 500;
+}
+.map-badge.mapped   { color: #1a9850; }
+.map-badge.unmapped { color: #aaa; }
+.trout-icons { display: flex; gap: 2px; align-items: center; }
+.trout-icons i { font-size: 11px; }
+.card-size { font-size: 10px; color: var(--text-muted); }
+
+/* ── Dark Mode (sidebar only) ─────────────────────────────── */
+.dark-sidebar #sidebar {
+  --sidebar-bg: #1a2035; --sidebar-border: #2d3a50; --card-bg: #212c42; --card-border: #2d3a50;
+  --card-hover: #263348; --card-active: #1e3a2e; --text: #d8e0ec; --text-muted: #7a8aaa;
+  --scrollbar: #3a4a60; --bg: #161e30;
+}
+.dark-sidebar .stream-card { color: #d8e0ec; }
+.dark-sidebar #status-bar { background: #1e2840; color: #7a8aaa; border-color: #2d3a50; }
+.dark-sidebar #sidebar-header { background: #111827; }
+
+/* ── Map Overlays ─────────────────────────────────────────── */
+.leaflet-control.basemap-ctrl {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-md);
+  overflow: hidden; border: 1px solid #ccc;
+}
+.basemap-ctrl select {
+  border: none; padding: 5px 8px; font-size: 12px; cursor: pointer;
+  background: transparent; outline: none; min-width: 140px;
+}
+.legend-ctrl {
+  background: rgba(255,255,255,.93); border-radius: var(--radius);
+  box-shadow: var(--shadow-md); padding: 8px 10px; font-size: 11px;
+  border: 1px solid #ddd; min-width: 110px;
+}
+.legend-ctrl .legend-title { font-weight: 700; font-size: 11px; margin-bottom: 5px; color: #333; }
+.legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.legend-swatch { width: 18px; height: 4px; border-radius: 2px; flex-shrink: 0; }
+.legend-label { font-size: 11px; color: #444; }
+
+/* ── Elevation Panel ──────────────────────────────────────── */
+#elev-panel {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,.97); border-top: 2px solid #52b96c;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.15); transition: transform .3s ease;
+  z-index: 500; max-height: 260px;
+}
+#elev-panel.hidden { transform: translateY(100%); pointer-events: none; }
+#elev-header {
+  display: flex; align-items: center; padding: 8px 14px 4px;
+  border-bottom: 1px solid #eee;
+}
+#elev-title { font-size: 13px; font-weight: 700; flex: 1; }
+#elev-stats {
+  display: flex; gap: 16px; padding: 5px 14px 3px;
+  font-size: 11px; color: #555;
+}
+.elev-stat span { font-weight: 700; color: #1a9850; }
+#elev-close {
+  background: none; border: none; cursor: pointer; font-size: 18px; color: #888;
+  padding: 2px 6px; border-radius: 4px; transition: color .15s;
+}
+#elev-close:hover { color: #333; }
+#elev-chart-wrap { padding: 4px 14px 8px; position: relative; }
+#elev-chart { width: 100%; height: 140px; cursor: crosshair; display: block; }
+#elev-loading {
+  text-align: center; padding: 30px; font-size: 12px; color: #888;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+#elev-loading i { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Map labels ───────────────────────────────────────────── */
+.stream-map-label {
+  white-space: nowrap; font-size: 10px; font-weight: 600;
+  color: #1a3a2a; text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+  pointer-events: none; background: none;
+  transform-origin: center center;
+}
+.stream-map-label i { font-size: 9px; }
+
+/* ── Stream popup ─────────────────────────────────────────── */
+.stream-popup { min-width: 180px; }
+.stream-popup h3 { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+.stream-popup .popup-grade { font-size: 11px; margin-bottom: 4px; }
+.stream-popup .popup-detail { font-size: 11px; color: #555; margin-bottom: 2px; }
+.stream-popup .popup-trout { margin-top: 5px; display: flex; gap: 4px; align-items: center; font-size: 11px; }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #sidebar { width: 100%; max-width: none; height: 45dvh; border-right: none; border-bottom: 1px solid var(--sidebar-border); }
+  #app { flex-direction: column; }
+  #map-wrap { flex: 1; }
+  :root { --sidebar-w: 100%; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <div id="sidebar-title">
+        <i class="fa-solid fa-fish"></i>
+        <h1>Smokies Trout Streams<span>Great Smoky Mountains NP</span></h1>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Sort</span>
+        <button class="btn-ctrl sort-btn active" id="sort-best" title="Best first">↑ Best</button>
+        <button class="btn-ctrl sort-btn" id="sort-worst" title="Worst first">↓ Worst</button>
+      </div>
+      <div class="ctrl-row" id="grade-filters">
+        <span class="ctrl-label">Grade</span>
+        <span class="pill-filter active" data-grade="Excellent">Exc</span>
+        <span class="pill-filter active" data-grade="Very Good">V.Good</span>
+        <span class="pill-filter active" data-grade="Good">Good</span>
+        <span class="pill-filter active" data-grade="Fair">Fair</span>
+        <span class="pill-filter active" data-grade="Poor">Poor</span>
+      </div>
+      <div class="ctrl-row">
+        <button class="btn-ctrl" id="toggle-mapped" title="Show only streams matched to map geometry">Mapped Only</button>
+        <button class="btn-ctrl" id="toggle-favs" title="Show favorites only"><i class="fa-solid fa-star" style="font-size:10px"></i> Favs</button>
+        <button class="btn-ctrl" id="toggle-labels" title="Show stream labels on map">Labels</button>
+        <button class="btn-ctrl" id="toggle-dark" title="Toggle sidebar dark mode"><i class="fa-solid fa-moon" style="font-size:10px"></i></button>
+      </div>
+    </div>
+    <div id="status-bar">
+      <div id="status-dot"></div>
+      <span id="status-text">Loading streams…</span>
+    </div>
+    <div id="stream-list"></div>
+  </aside>
+
+  <div id="map-wrap">
+    <div id="map"></div>
+    <div id="elev-panel" class="hidden">
+      <div id="elev-header">
+        <div id="elev-title">Elevation Profile</div>
+        <button id="elev-close" title="Close elevation profile"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="elev-stats"></div>
+      <div id="elev-chart-wrap">
+        <div id="elev-loading" class="hidden"><i class="fa-solid fa-spinner"></i> Fetching elevation data…</div>
+        <svg id="elev-chart"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const GRSM_CENTER = [35.612, -83.489];
+const GRSM_ZOOM   = 10;
+const GRSM_BBOX   = [35.42, -84.02, 35.81, -83.08]; // s,w,n,e
+const OVERPASS_URLS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
+];
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
+const ELEV_URL = 'https://api.open-meteo.com/v1/elevation';
+const LS_FAVS  = 'smokies_favs_v1';
+const LS_DARK  = 'smokies_dark_v1';
+const LS_PARK  = 'smokies_park_v2';
+
+const GRADE_ORDER  = ['Excellent','Very Good','Good','Fair','Poor'];
+const GRADE_COLORS = { 'Excellent':'#1565c0','Very Good':'#27ae60','Good':'#f0a500','Fair':'#e06c2c','Poor':'#c0392b' };
+const GRADE_CSS    = { 'Excellent':'Excellent','Very Good':'VeryGood','Good':'Good','Fair':'Fair','Poor':'Poor' };
+const TROUT_COLORS = { rainbow:'#e74c3c', brook:'#2980b9', brown:'#8B4513' };
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+const S = {
+  streams: [],          // raw JSON records
+  osmIndex: {},         // normKey -> [{id, geometry:[{lat,lon},...], tags}]
+  parkGeo: null,        // GeoJSON Polygon/MultiPolygon
+  processed: [],        // enriched stream objects after matching+clipping
+  favorites: new Set(), // stream names
+  darkMode: false,
+  sortOrder: 'best',
+  gradeFilter: new Set(GRADE_ORDER),
+  mappedOnly: false,
+  favsOnly: false,
+  showLabels: false,
+  // map objects
+  streamLayers: {},  // name -> L.polyline (base, clipped)
+  labelLayers:  {},  // name -> L.marker
+  slopeLayer:   null,
+  elevMarker:   null,
+  activeCard:   null,
+  activeStream: null,
+};
+
+// ═══════════════════════════════════════════════════════════
+// UTILITIES — Normalization
+// ═══════════════════════════════════════════════════════════
+const FILLER = new Set(['the','of','a','an']);
+
+function normName(name) {
+  // Remove punctuation entirely (not replace with space) so "Jake's" → "jakes"
+  return String(name).toLowerCase()
+    .replace(/[^a-z0-9\s]/g,'')
+    .split(/\s+/)
+    .filter(w => w && !FILLER.has(w))
+    .join(' ').trim();
+}
+
+function normalizeGrade(raw) {
+  if (!raw) return 'Good';
+  const s = String(raw).toLowerCase().replace(/[_\-]/g,' ');
+
+  // Numeric
+  const n = parseFloat(s);
+  if (!isNaN(n)) return ['Poor','Fair','Good','Very Good','Excellent'][Math.min(4,Math.max(0,Math.round(n)-1))];
+
+  // Stars
+  const stars = (s.match(/★/g)||[]).length || (s.match(/\*/g)||[]).length;
+  if (stars) return ['Poor','Fair','Good','Very Good','Excellent'][Math.min(4,Math.max(0,stars-1))];
+
+  // Compound phrases — rank both parts, take higher
+  if (s.includes(' to ') || s.includes(' - ')) {
+    const parts = s.split(/ to | - /);
+    const ranks = parts.map(p => gradeRank(p));
+    return GRADE_ORDER[Math.min(...ranks)]; // take best grade
+  }
+
+  return GRADE_ORDER[gradeRank(s)];
+}
+
+function gradeRank(s) {
+  if (s.includes('excellent') || s.includes('outstanding') || s.includes('premier') || s.includes('best in the park') || s.includes('plentiful')) return 0;
+  if (s.includes('very good') || s.includes('great') || s.includes('trophy')) return 1;
+  if (s.includes('fairly good') || s.includes('good')) return 2;
+  if (s.includes('fair') || s.includes('marginal') || s.includes('questionable')) return 3;
+  if (s.includes('poor') || s.includes('worse')) return 4;
+  return 2; // default: Good
+}
+
+function getTroutTypes(stream) {
+  const raw = stream['TROUT_TYPES'] || stream['TROUT TYPES'] ||
+              stream['TROUT_TYPE']  || stream['TROUT TYPE']  ||
+              stream['TROUT'] || stream['SPECIES'] || '';
+  const list = Array.isArray(raw) ? raw : String(raw).split(/[,;]+/);
+  return list.map(s => s.trim()).filter(Boolean);
+}
+
+function parseTroutSpecies(list) {
+  const out = [];
+  for (const t of list) {
+    const s = t.toLowerCase();
+    if (s.includes('rainbow'))  out.push('rainbow');
+    if (s.includes('brook'))    out.push('brook');
+    if (s.includes('brown'))    out.push('brown');
+    if (s.includes('cutthroat'))out.push('cutthroat');
+  }
+  return [...new Set(out)];
+}
+
+function troutIconsHtml(species) {
+  return species.map(sp => {
+    const c = TROUT_COLORS[sp] || '#555';
+    return `<i class="fa-solid fa-fish" style="color:${c}" title="${sp} trout"></i>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILITIES — Geo Math
+// ═══════════════════════════════════════════════════════════
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000, D = Math.PI/180;
+  const φ1 = lat1*D, φ2 = lat2*D;
+  const dφ = (lat2-lat1)*D, dλ = (lon2-lon1)*D;
+  const a = Math.sin(dφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(dλ/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function polylineLength(coords) {
+  // coords: [[lat,lon],...]
+  let d = 0;
+  for (let i = 1; i < coords.length; i++)
+    d += haversine(coords[i-1][0],coords[i-1][1],coords[i][0],coords[i][1]);
+  return d;
+}
+
+function samplePolyline(coords, n) {
+  if (coords.length === 0) return [];
+  if (n <= 1) return [coords[0]];
+  const dists = [0];
+  for (let i = 1; i < coords.length; i++)
+    dists.push(dists[i-1] + haversine(coords[i-1][0],coords[i-1][1],coords[i][0],coords[i][1]));
+  const total = dists[dists.length-1];
+  if (total === 0) return Array(n).fill(coords[0]);
+  const pts = [];
+  for (let k = 0; k < n; k++) {
+    const target = (k/(n-1)) * total;
+    let j = dists.findIndex(d => d >= target);
+    if (j <= 0) j = 1;
+    if (j >= coords.length) j = coords.length-1;
+    const seg = dists[j]-dists[j-1];
+    const t = seg > 0 ? (target-dists[j-1])/seg : 0;
+    pts.push([
+      coords[j-1][0] + t*(coords[j][0]-coords[j-1][0]),
+      coords[j-1][1] + t*(coords[j][1]-coords[j-1][1])
+    ]);
+  }
+  return pts;
+}
+
+function getPolylineMidpoint(coords) {
+  if (coords.length === 0) return null;
+  if (coords.length === 1) return coords[0];
+  const pts = samplePolyline(coords, 3);
+  return pts[1];
+}
+
+function getAngleAtPoint(map, coords) {
+  const n = coords.length;
+  if (n < 2) return 0;
+  const mid = Math.floor(n/2);
+  const i1 = Math.max(0, mid-2), i2 = Math.min(n-1, mid+2);
+  const p1 = map.latLngToContainerPoint(L.latLng(coords[i1][0],coords[i1][1]));
+  const p2 = map.latLngToContainerPoint(L.latLng(coords[i2][0],coords[i2][1]));
+  let a = Math.atan2(p2.y-p1.y, p2.x-p1.x) * 180/Math.PI;
+  if (a > 90) a -= 180;
+  if (a < -90) a += 180;
+  return a;
+}
+
+function wayCentroid(way) {
+  const g = way.geometry;
+  if (!g || g.length === 0) return null;
+  const lat = g.reduce((s,p)=>s+p.lat,0)/g.length;
+  const lon = g.reduce((s,p)=>s+p.lon,0)/g.length;
+  return { lat, lon };
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILITIES — Polygon Clipping
+// ═══════════════════════════════════════════════════════════
+// GeoJSON coords: [lon,lat]
+
+function pointInRing(lat, lon, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length-1; i < ring.length; j = i++) {
+    const [xi,yi] = ring[i], [xj,yj] = ring[j]; // [lon,lat]
+    if (((yi>lat) !== (yj>lat)) && (lon < (xj-xi)*(lat-yi)/(yj-yi)+xi))
+      inside = !inside;
+  }
+  return inside;
+}
+
+function pointInParkGeo(lat, lon, geo) {
+  if (!geo) return true; // no boundary = include everything
+  if (geo.type === 'Polygon')
+    return pointInRing(lat, lon, geo.coordinates[0]);
+  if (geo.type === 'MultiPolygon')
+    return geo.coordinates.some(poly => pointInRing(lat, lon, poly[0]));
+  return true;
+}
+
+function segIntersect(p1, p2, p3, p4) {
+  // All [lon,lat]. Returns [lon,lat] intersection or null.
+  const d1x = p2[0]-p1[0], d1y = p2[1]-p1[1];
+  const d2x = p4[0]-p3[0], d2y = p4[1]-p3[1];
+  const cross = d1x*d2y - d1y*d2x;
+  if (Math.abs(cross) < 1e-12) return null;
+  const t = ((p3[0]-p1[0])*d2y - (p3[1]-p1[1])*d2x) / cross;
+  const u = ((p3[0]-p1[0])*d1y - (p3[1]-p1[1])*d1x) / cross;
+  if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+    return [p1[0]+t*d1x, p1[1]+t*d1y];
+  return null;
+}
+
+function findRingCrossing(p1, p2, ring) {
+  // p1,p2: [lon,lat]. Returns closest intersection [lon,lat] or null.
+  let best = null, bestD2 = Infinity;
+  for (let i = 0; i < ring.length-1; i++) {
+    const pt = segIntersect(p1, p2, ring[i], ring[i+1]);
+    if (pt) {
+      const d2 = (pt[0]-p1[0])**2 + (pt[1]-p1[1])**2;
+      if (d2 < bestD2) { bestD2 = d2; best = pt; }
+    }
+  }
+  return best;
+}
+
+function findParkCrossing(p1, p2, geo) {
+  if (!geo) return null;
+  const rings = geo.type==='Polygon' ? [geo.coordinates[0]]
+    : geo.coordinates.map(poly=>poly[0]);
+  let best = null, bestD2 = Infinity;
+  for (const ring of rings) {
+    const pt = findRingCrossing(p1, p2, ring);
+    if (pt) {
+      const d2 = (pt[0]-p1[0])**2 + (pt[1]-p1[1])**2;
+      if (d2 < bestD2) { bestD2 = d2; best = pt; }
+    }
+  }
+  return best;
+}
+
+function clipWayToPark(way, geo) {
+  // Returns array of [[lat,lon],...] segments (each is an array of [lat,lon])
+  const geom = way.geometry; // [{lat,lon}]
+  if (!geom || geom.length < 2) return [];
+  if (!geo) return [geom.map(p=>[p.lat,p.lon])];
+
+  const segments = [];
+  let cur = null; // current inside segment
+
+  for (let i = 0; i < geom.length; i++) {
+    const p = geom[i];
+    const inside = pointInParkGeo(p.lat, p.lon, geo);
+
+    if (i === 0) {
+      if (inside) cur = [[p.lat,p.lon]];
+      continue;
+    }
+
+    const prev = geom[i-1];
+    const prevInside = pointInParkGeo(prev.lat, prev.lon, geo);
+    const pLonLat = [p.lon, p.lat], prevLonLat = [prev.lon, prev.lat];
+
+    if (prevInside && inside) {
+      cur.push([p.lat,p.lon]);
+    } else if (prevInside && !inside) {
+      // exiting park
+      const cross = findParkCrossing(prevLonLat, pLonLat, geo);
+      if (cross) cur.push([cross[1],cross[0]]); // back to [lat,lon]
+      if (cur && cur.length > 1) segments.push(cur);
+      cur = null;
+    } else if (!prevInside && inside) {
+      // entering park
+      const cross = findParkCrossing(prevLonLat, pLonLat, geo);
+      cur = cross ? [[cross[1],cross[0]], [p.lat,p.lon]] : [[p.lat,p.lon]];
+    }
+    // both outside: skip
+  }
+  if (cur && cur.length > 1) segments.push(cur);
+  return segments;
+}
+
+// Hard trim rules: stop rendering if coord goes below lat threshold
+const HARD_TRIMS = {
+  'west prong little pigeon river': { minLat: 35.678 }, // park entrance near Gatlinburg
+};
+
+function applyHardTrim(normKey, segments) {
+  const rule = HARD_TRIMS[normKey];
+  if (!rule) return segments;
+  return segments.map(seg => seg.filter(p => p[0] >= (rule.minLat||0))).filter(s=>s.length>1);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAP SETUP
+// ═══════════════════════════════════════════════════════════
+const map = L.map('map', { zoomControl: true, attributionControl: true });
+
+// Create a higher z-index pane for slope overlay
+map.createPane('slopePane');
+map.getPane('slopePane').style.zIndex = 450;
+map.getPane('slopePane').style.pointerEvents = 'none';
+
+// Basemaps
+const BASEMAPS = {
+  'OSM Standard':    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { maxZoom:19, attribution:'© OpenStreetMap contributors' }),
+  'Carto Positron':  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    { maxZoom:20, attribution:'© CartoDB' }),
+  'Carto Voyager':   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    { maxZoom:20, attribution:'© CartoDB' }),
+  'Carto Dark':      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    { maxZoom:20, attribution:'© CartoDB' }),
+  'OpenTopoMap':     L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    { maxZoom:17, attribution:'© OpenTopoMap contributors' }),
+  'Esri Imagery':    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { maxZoom:20, attribution:'© Esri' }),
+};
+BASEMAPS['Carto Voyager'].addTo(map);
+map.setView(GRSM_CENTER, GRSM_ZOOM);
+
+// Basemap control
+const BasemapControl = L.Control.extend({
+  options: { position: 'topright' },
+  onAdd() {
+    const wrap = L.DomUtil.create('div','leaflet-control basemap-ctrl');
+    const sel = L.DomUtil.create('select','',wrap);
+    Object.keys(BASEMAPS).forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      if (name === 'Carto Voyager') opt.selected = true;
+      sel.appendChild(opt);
+    });
+    L.DomEvent.disableClickPropagation(wrap);
+    sel.addEventListener('change', () => {
+      Object.values(BASEMAPS).forEach(l => map.hasLayer(l) && map.removeLayer(l));
+      BASEMAPS[sel.value].addTo(map);
+      BASEMAPS[sel.value].bringToBack();
+    });
+    return wrap;
+  }
+});
+new BasemapControl().addTo(map);
+
+// Legend control
+const LegendControl = L.Control.extend({
+  options: { position: 'bottomright' },
+  onAdd() {
+    const wrap = L.DomUtil.create('div','leaflet-control legend-ctrl');
+    wrap.innerHTML = `<div class="legend-title"><i class="fa-solid fa-fish" style="color:#52b96c;margin-right:4px"></i>Fishing Quality</div>` +
+      GRADE_ORDER.map(g => `<div class="legend-row">
+        <div class="legend-swatch" style="background:${GRADE_COLORS[g]}"></div>
+        <div class="legend-label">${g}</div>
+      </div>`).join('');
+    return wrap;
+  }
+});
+new LegendControl().addTo(map);
+
+// ═══════════════════════════════════════════════════════════
+// DATA LOADING
+// ═══════════════════════════════════════════════════════════
+async function loadStreams() {
+  const res = await fetch('streams_data.json');
+  if (!res.ok) throw new Error('Failed to load streams_data.json');
+  const raw = await res.json();
+  return raw.map(r => {
+    const troutRaw  = getTroutTypes(r);
+    const species   = parseTroutSpecies(troutRaw);
+    const qualRaw   = r['FISHING QUALITY'] || r['QUALITY'] || r['quality'] || '';
+    const grade     = normalizeGrade(qualRaw);
+    return {
+      name:     r['NAME'] || r['name'] || 'Unnamed',
+      grade,
+      qualRaw,
+      size:     r['SIZE'] || '',
+      pressure: r['FISHING PRESSURE'] || '',
+      access:   r['ACCESS'] || '',
+      quads:    r['USGS QUADS'] || '',
+      troutRaw,
+      species,
+      osmWays:  [],   // filled after OSM fetch
+      segments: [],   // [[lat,lon],...] after clipping
+      matched:  false,
+    };
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// OSM QUERY
+// ═══════════════════════════════════════════════════════════
+async function fetchOSMWaterways() {
+  const [s,w,n,e] = GRSM_BBOX;
+  // Try area-based query first, fall back to bbox-only
+  const queries = [
+    `[out:json][timeout:60];
+(
+  way["waterway"~"^(stream|river|creek)$"]["name"](${s},${w},${n},${e});
+  way["waterway"="stream"]["name"](${s},${w},${n},${e});
+  way["waterway"="river"]["name"](${s},${w},${n},${e});
+);
+out geom;`,
+  ];
+
+  for (const url of OVERPASS_URLS) {
+    for (const q of queries) {
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          body: 'data=' + encodeURIComponent(q),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          signal: AbortSignal.timeout(65000),
+        });
+        if (!resp.ok) continue;
+        const data = await resp.json();
+        if (data.elements && data.elements.length > 0) return data.elements;
+      } catch(e) { /* try next */ }
+    }
+  }
+  return [];
+}
+
+function buildOSMIndex(ways) {
+  const idx = {};
+  for (const way of ways) {
+    const name = way.tags && way.tags.name;
+    if (!name || !way.geometry) continue;
+    const key = normName(name);
+    if (!idx[key]) idx[key] = [];
+    idx[key].push(way);
+  }
+  return idx;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STREAM MATCHING
+// ═══════════════════════════════════════════════════════════
+function matchStreams(streams, osmIdx) {
+  for (const s of streams) {
+    const key = normName(s.name);
+    if (osmIdx[key]) {
+      s.osmWays = osmIdx[key];
+      s.matched = true;
+    }
+  }
+}
+
+function applyEastProngOverride(streams, osmIdx) {
+  const ep = streams.find(s => normName(s.name) === normName('East Prong of Little River'));
+  if (!ep || ep.matched) return;
+
+  // Find Jake's Creek as spatial anchor
+  const jakesKey  = normName("Jakes Creek");
+  const jakesWays = osmIdx[jakesKey] || osmIdx[normName("Jake Creek")] || [];
+  const lrKey     = normName("Little River");
+  const lrWays    = osmIdx[lrKey] || [];
+
+  if (lrWays.length === 0) return;
+
+  if (jakesWays.length > 0) {
+    const jc = wayCentroid(jakesWays[0]);
+    if (jc) {
+      // Little River ways within ~3 km of Jake's Creek
+      const nearby = lrWays.filter(w => {
+        const c = wayCentroid(w);
+        return c && haversine(c.lat,c.lon,jc.lat,jc.lon) < 3000;
+      });
+      if (nearby.length > 0) {
+        ep.osmWays = nearby;
+        ep.matched  = true;
+        // Remove from Little River
+        const lr = streams.find(s => normName(s.name) === lrKey);
+        if (lr) lr.osmWays = lr.osmWays.filter(w => !nearby.some(n=>n.id===w.id));
+        return;
+      }
+    }
+  }
+
+  // Fallback: use first third of LR ways
+  const take = Math.max(1, Math.ceil(lrWays.length/3));
+  ep.osmWays = lrWays.slice(0, take);
+  ep.matched  = true;
+  const lr = streams.find(s => normName(s.name) === lrKey);
+  if (lr) lr.osmWays = lr.osmWays.slice(take);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PARK BOUNDARY
+// ═══════════════════════════════════════════════════════════
+async function fetchParkBoundary() {
+  try {
+    const cached = localStorage.getItem(LS_PARK);
+    if (cached) return JSON.parse(cached);
+  } catch(e) {}
+
+  try {
+    const url = `${NOMINATIM_URL}/search?` + new URLSearchParams({
+      q: 'Great Smoky Mountains National Park',
+      format: 'json', polygon_geojson: '1', limit: '1'
+    });
+    const res = await fetch(url, {
+      headers: { 'User-Agent':'SmokiesStreamsMap/1.0', Accept:'application/json' },
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await res.json();
+    if (!data.length || !data[0].geojson) return null;
+    const geo = data[0].geojson;
+    if (geo.type !== 'Polygon' && geo.type !== 'MultiPolygon') return null;
+    try { localStorage.setItem(LS_PARK, JSON.stringify(geo)); } catch(e) {}
+    return geo;
+  } catch(e) { return null; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLIP AND BUILD SEGMENTS
+// ═══════════════════════════════════════════════════════════
+function buildStreamSegments(streams, parkGeo) {
+  for (const s of streams) {
+    if (!s.matched || s.osmWays.length === 0) { s.segments = []; continue; }
+    const key = normName(s.name);
+    const allSegs = [];
+    for (const way of s.osmWays) {
+      const clipped = clipWayToPark(way, parkGeo);
+      allSegs.push(...clipped);
+    }
+    s.segments = applyHardTrim(key, allSegs);
+    s.matched = s.segments.some(seg=>seg.length>1);
+  }
+}
+
+// Flatten all segments of a stream into one coord array for profiling
+function flattenSegments(segments) {
+  if (!segments.length) return [];
+  // Join segments — leave a small gap marker isn't needed for elevation
+  const all = [];
+  for (const seg of segments) {
+    if (all.length > 0) {
+      // Only concatenate if fairly close to previous end
+      const prev = all[all.length-1];
+      const next = seg[0];
+      const d = haversine(prev[0],prev[1],next[0],next[1]);
+      if (d > 500) all.push(null); // null = gap (handled in sampling)
+    }
+    all.push(...seg);
+  }
+  return all.filter(p=>p!==null);
+}
+
+// ═══════════════════════════════════════════════════════════
+// STREAM RENDERING
+// ═══════════════════════════════════════════════════════════
+const streamLayerGroup = L.layerGroup().addTo(map);
+const labelLayerGroup  = L.layerGroup().addTo(map);
+
+function renderStreams(streams) {
+  streamLayerGroup.clearLayers();
+  S.streamLayers = {};
+
+  for (const s of streams) {
+    if (!s.matched || s.segments.length === 0) continue;
+    const color = GRADE_COLORS[s.grade];
+    const lines = s.segments.map(seg =>
+      L.polyline(seg.map(p=>L.latLng(p[0],p[1])), {
+        color, weight: 3, opacity: .85, lineJoin:'round', lineCap:'round'
+      })
+    );
+    const grp = L.featureGroup(lines);
+    grp.on('mouseover', () => highlightStream(s.name, true));
+    grp.on('mouseout',  () => highlightStream(s.name, false));
+    grp.on('click', (e) => {
+      L.DomEvent.stopPropagation(e);
+      showStreamPopup(s, e.latlng);
+    });
+    grp.bindTooltip(s.name, { sticky:true, direction:'top', className:'', offset:[0,-4] });
+    streamLayerGroup.addLayer(grp);
+    S.streamLayers[s.name] = grp;
+  }
+}
+
+function showStreamPopup(stream, latlng) {
+  const troutHtml = stream.species.length
+    ? `<div class="popup-trout">${troutIconsHtml(stream.species)} ${stream.troutRaw.join(', ')}</div>` : '';
+  const html = `<div class="stream-popup">
+    <h3>${stream.name}</h3>
+    <div class="popup-grade"><span class="grade-pill ${GRADE_CSS[stream.grade]}">${stream.grade}</span></div>
+    <div class="popup-detail"><b>Size:</b> ${stream.size||'—'}</div>
+    <div class="popup-detail"><b>Pressure:</b> ${stream.pressure||'—'}</div>
+    <div class="popup-detail"><b>Access:</b> ${stream.access||'—'}</div>
+    ${troutHtml}
+  </div>`;
+  L.popup({ maxWidth:260, className:'' }).setLatLng(latlng).setContent(html).openOn(map);
+}
+
+function highlightStream(name, on) {
+  const grp = S.streamLayers[name];
+  if (!grp) return;
+  grp.getLayers().forEach(l => l.setStyle({ weight: on?5:3, opacity: on?1:.85 }));
+  // Sync sidebar card
+  const card = document.querySelector(`.stream-card[data-name="${CSS.escape(name)}"]`);
+  if (card) card.classList.toggle('highlighted', on);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LABELS
+// ═══════════════════════════════════════════════════════════
+function renderLabels(streams) {
+  labelLayerGroup.clearLayers();
+  S.labelLayers = {};
+  if (!S.showLabels) return;
+
+  for (const s of streams) {
+    if (!s.matched || s.segments.length === 0) continue;
+    // Concatenate all segment coords for midpoint calc
+    const allCoords = s.segments.flat();
+    const mid = getPolylineMidpoint(allCoords);
+    if (!mid) continue;
+    const angle = getAngleAtPoint(map, allCoords);
+    const troutHtml = s.species.length ? ' ' + troutIconsHtml(s.species) : '';
+    const icon = L.divIcon({
+      className: 'stream-map-label',
+      html: `<span style="transform:rotate(${angle}deg);display:inline-block">${s.name}${troutHtml}</span>`,
+      iconAnchor: [0, 0],
+    });
+    const marker = L.marker([mid[0],mid[1]], { icon, interactive:false, zIndexOffset:-100 });
+    labelLayerGroup.addLayer(marker);
+    S.labelLayers[s.name] = marker;
+  }
+}
+
+map.on('zoomend', () => {
+  if (S.showLabels) {
+    const visible = new Set(getFilteredSorted().filter(s=>s.matched).map(s=>s.name));
+    renderLabels(S.processed.filter(s=>visible.has(s.name)));
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════════
+function buildCardHtml(s) {
+  const favClass = S.favorites.has(s.name) ? 'active' : '';
+  const gradeClass = GRADE_CSS[s.grade];
+  const mapBadge = S.mappedOnly ? '' :
+    s.matched
+      ? `<span class="map-badge mapped" title="Matched to map geometry"><i class="fa-solid fa-location-dot" style="font-size:9px"></i> Mapped</span>`
+      : `<span class="map-badge unmapped" title="No map geometry found">No map</span>`;
+  const troutHtml = s.species.length
+    ? `<span class="trout-icons">${troutIconsHtml(s.species)}</span>` : '';
+  const sizeHtml = s.size ? `<span class="card-size">${s.size}</span>` : '';
+
+  return `<div class="stream-card${s.matched?'':' no-map'}" data-name="${escAttr(s.name)}" tabindex="0" role="button" aria-label="${escAttr(s.name)}">
+    <div class="card-top">
+      <div class="card-name">${escHtml(s.name)}</div>
+      <div class="card-actions">
+        <button class="fav-btn${favClass?' active':''}" data-name="${escAttr(s.name)}" title="Favorite" aria-label="Favorite ${escAttr(s.name)}">
+          <i class="fa-${favClass?'solid':'regular'} fa-star"></i>
+        </button>
+      </div>
+    </div>
+    <div class="card-meta">
+      <span class="grade-pill ${gradeClass}">${s.grade}</span>
+      ${mapBadge}
+      ${troutHtml}
+      ${sizeHtml}
+    </div>
+  </div>`;
+}
+
+function getFilteredSorted() {
+  let list = S.processed.filter(s => {
+    if (!S.gradeFilter.has(s.grade)) return false;
+    if (S.mappedOnly && !s.matched) return false;
+    if (S.favsOnly && !S.favorites.has(s.name)) return false;
+    return true;
+  });
+  const dir = S.sortOrder === 'best' ? 1 : -1;
+  list.sort((a,b) => dir * (GRADE_ORDER.indexOf(a.grade) - GRADE_ORDER.indexOf(b.grade)));
+  return list;
+}
+
+function renderSidebar() {
+  const list = getFilteredSorted();
+  const el = document.getElementById('stream-list');
+  el.innerHTML = list.map(buildCardHtml).join('');
+
+  // Event delegation
+  el.querySelectorAll('.stream-card').forEach(card => {
+    const name = card.dataset.name;
+    card.addEventListener('mouseenter', () => highlightStream(name, true));
+    card.addEventListener('mouseleave', () => highlightStream(name, false));
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.fav-btn')) return;
+      selectStream(name);
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key==='Enter'||e.key===' ') { e.preventDefault(); selectStream(name); }
+    });
+  });
+
+  el.querySelectorAll('.fav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavorite(btn.dataset.name);
+    });
+  });
+}
+
+function selectStream(name) {
+  const stream = S.processed.find(s=>s.name===name);
+  if (!stream) return;
+
+  // Highlight / de-highlight previous
+  if (S.activeCard) S.activeCard.classList.remove('highlighted');
+  const card = document.querySelector(`.stream-card[data-name="${CSS.escape(name)}"]`);
+  if (card) { card.classList.add('highlighted'); S.activeCard = card; }
+
+  // Zoom to stream
+  const grp = S.streamLayers[name];
+  if (grp) {
+    try { map.fitBounds(grp.getBounds().pad(.15)); } catch(e){}
+  }
+
+  // Open elevation profile if stream is mapped
+  if (stream.matched && stream.segments.length > 0) {
+    openElevPanel(stream);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILTERS & SORT
+// ═══════════════════════════════════════════════════════════
+function setupControls() {
+  // Sort buttons
+  document.getElementById('sort-best').addEventListener('click', () => {
+    S.sortOrder = 'best';
+    document.getElementById('sort-best').classList.add('active');
+    document.getElementById('sort-worst').classList.remove('active');
+    renderSidebar();
+  });
+  document.getElementById('sort-worst').addEventListener('click', () => {
+    S.sortOrder = 'worst';
+    document.getElementById('sort-worst').classList.add('active');
+    document.getElementById('sort-best').classList.remove('active');
+    renderSidebar();
+  });
+
+  // Grade filter pills
+  document.querySelectorAll('.pill-filter').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const g = pill.dataset.grade;
+      if (S.gradeFilter.has(g)) { S.gradeFilter.delete(g); pill.classList.remove('active'); }
+      else { S.gradeFilter.add(g); pill.classList.add('active'); }
+      renderSidebar();
+      updateStreamVisibility();
+    });
+  });
+
+  // Toggle buttons
+  const toggled = (id, key, cb) => {
+    document.getElementById(id).addEventListener('click', function() {
+      S[key] = !S[key];
+      this.classList.toggle('active', S[key]);
+      if (cb) cb(S[key]);
+      renderSidebar();
+    });
+  };
+
+  toggled('toggle-mapped', 'mappedOnly', () => updateStreamVisibility());
+  toggled('toggle-favs',   'favsOnly',   () => updateStreamVisibility());
+  toggled('toggle-labels', 'showLabels', (on) => {
+    if (on) renderLabels(S.processed);
+    else { labelLayerGroup.clearLayers(); S.labelLayers = {}; }
+  });
+  toggled('toggle-dark', 'darkMode', (on) => {
+    document.body.classList.toggle('dark-sidebar', on);
+    try { localStorage.setItem(LS_DARK, on?'1':'0'); } catch(e){}
+  });
+
+  // Elevation panel close
+  document.getElementById('elev-close').addEventListener('click', closeElevPanel);
+}
+
+function updateStreamVisibility() {
+  const visible = new Set(getFilteredSorted().filter(s=>s.matched).map(s=>s.name));
+  for (const [name, grp] of Object.entries(S.streamLayers)) {
+    if (visible.has(name)) {
+      if (!streamLayerGroup.hasLayer(grp)) streamLayerGroup.addLayer(grp);
+    } else {
+      streamLayerGroup.removeLayer(grp);
+    }
+  }
+  // Always re-render labels so stale ones from hidden streams are cleared
+  if (S.showLabels) renderLabels(S.processed.filter(s=>visible.has(s.name)));
+  else { labelLayerGroup.clearLayers(); S.labelLayers = {}; }
+}
+
+function toggleFavorite(name) {
+  if (S.favorites.has(name)) S.favorites.delete(name);
+  else S.favorites.add(name);
+  try { localStorage.setItem(LS_FAVS, JSON.stringify([...S.favorites])); } catch(e){}
+  renderSidebar();
+  updateStreamVisibility();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ELEVATION PROFILE
+// ═══════════════════════════════════════════════════════════
+let elevAbort = null;
+
+async function openElevPanel(stream) {
+  const panel = document.getElementById('elev-panel');
+  const chartEl = document.getElementById('elev-chart');
+  const statsEl = document.getElementById('elev-stats');
+  const loadEl  = document.getElementById('elev-loading');
+  const titleEl = document.getElementById('elev-title');
+
+  // Cancel any pending fetch
+  if (elevAbort) elevAbort.abort();
+  elevAbort = new AbortController();
+
+  clearSlopeOverlay();
+  if (S.elevMarker) { map.removeLayer(S.elevMarker); S.elevMarker = null; }
+
+  titleEl.textContent = stream.name + ' — Elevation Profile';
+  statsEl.innerHTML = '';
+  chartEl.innerHTML = '';
+  loadEl.classList.remove('hidden');
+  panel.classList.remove('hidden');
+  S.activeStream = stream;
+
+  try {
+    const allCoords = flattenSegments(stream.segments);
+    if (allCoords.length < 2) { loadEl.textContent = 'Not enough geometry.'; return; }
+
+    // Sample ~80 points along the stream
+    const N = Math.min(80, Math.max(20, Math.floor(allCoords.length / 3)));
+    const samples = samplePolyline(allCoords, N);
+
+    // Fetch elevations in chunks of 100
+    const elevations = await fetchElevations(samples, elevAbort.signal);
+    if (!elevations) return; // aborted
+
+    // Smooth
+    const smoothed = smoothElev(elevations, 5);
+    // Enforce downhill direction
+    const profile = enforceDownhill(smoothed);
+
+    // Build cumulative distances
+    const dists = [0];
+    for (let i = 1; i < samples.length; i++)
+      dists.push(dists[i-1] + haversine(samples[i-1][0],samples[i-1][1],samples[i][0],samples[i][1]));
+
+    const totalM  = dists[dists.length-1];
+    const totalMi = (totalM/1609.34).toFixed(2);
+    const maxElev = Math.max(...profile), minElev = Math.min(...profile);
+    const netRise = Math.round(maxElev - minElev);
+    const netGrade = totalM > 0 ? (netRise/totalM*100).toFixed(1) : 0;
+    // Avg absolute grade between consecutive points
+    let sumGrade = 0;
+    for (let i = 1; i < profile.length; i++) {
+      const d = dists[i]-dists[i-1];
+      if (d > 0) sumGrade += Math.abs(profile[i]-profile[i-1])/d*100;
+    }
+    const avgGrade = (sumGrade/(profile.length-1)).toFixed(1);
+
+    loadEl.classList.add('hidden');
+    statsEl.innerHTML = `
+      <div class="elev-stat">Length: <span>${totalMi} mi</span></div>
+      <div class="elev-stat">Elev change: <span>${netRise} m</span></div>
+      <div class="elev-stat">Net grade: <span>${netGrade}%</span></div>
+      <div class="elev-stat">Avg grade: <span>${avgGrade}%</span></div>
+    `;
+
+    drawElevChart(chartEl, profile, dists, samples);
+    drawSlopeOverlay(samples, profile, dists);
+
+  } catch(e) {
+    if (e.name === 'AbortError') return;
+    loadEl.classList.remove('hidden');
+    loadEl.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Elevation fetch failed.`;
+  }
+}
+
+async function fetchElevations(samples, signal) {
+  const CHUNK = 100;
+  const all = [];
+  for (let i = 0; i < samples.length; i += CHUNK) {
+    const chunk = samples.slice(i, i+CHUNK);
+    const lats = chunk.map(p=>p[0].toFixed(6)).join(',');
+    const lons = chunk.map(p=>p[1].toFixed(6)).join(',');
+    const url = `${ELEV_URL}?latitude=${lats}&longitude=${lons}`;
+    const res = await fetch(url, { signal });
+    if (!res.ok) throw new Error('Elevation API error');
+    const data = await res.json();
+    all.push(...(data.elevation||[]));
+  }
+  return all;
+}
+
+function smoothElev(elev, w=3) {
+  return elev.map((v,i) => {
+    const s = Math.max(0,i-Math.floor(w/2)), e = Math.min(elev.length,i+Math.floor(w/2)+1);
+    const slice = elev.slice(s,e);
+    return slice.reduce((a,b)=>a+b,0)/slice.length;
+  });
+}
+
+function enforceDownhill(elev) {
+  // Determine primary direction (which end is higher = upstream)
+  const n = elev.length;
+  const firstAvg = elev.slice(0,Math.floor(n/3)).reduce((a,b)=>a+b,0)/Math.floor(n/3);
+  const lastAvg  = elev.slice(Math.ceil(2*n/3)).reduce((a,b)=>a+b,0)/Math.floor(n/3);
+  // If last > first, stream profile goes upstream right-to-left; reverse for display
+  const arr = lastAvg > firstAvg ? [...elev].reverse() : [...elev];
+  // Running max from right (downstream end) to enforce monotone decrease
+  // Allow small bumps (noise up to 3m); only clip larger reversals
+  let runMin = arr[arr.length-1];
+  const out = [...arr];
+  for (let i = arr.length-2; i >= 0; i--) {
+    if (out[i] < runMin - 1) out[i] = runMin - 1; // don't go below downstream - small delta
+    runMin = Math.min(runMin, out[i]);
+  }
+  return out;
+}
+
+function drawElevChart(svg, profile, dists, samples) {
+  const W = svg.clientWidth || 560, H = svg.clientHeight || 140;
+  const PAD = { t:10, r:10, b:28, l:46 };
+  const cw = W - PAD.l - PAD.r, ch = H - PAD.t - PAD.b;
+  const totalD = dists[dists.length-1];
+  const minE = Math.min(...profile) - 20;
+  const maxE = Math.max(...profile) + 20;
+  const eRange = maxE - minE;
+
+  const xs = d => PAD.l + (d/totalD)*cw;
+  const ys = e => PAD.t + (1-(e-minE)/eRange)*ch;
+
+  // Build path
+  const pts = profile.map((e,i) => `${xs(dists[i]).toFixed(1)},${ys(e).toFixed(1)}`);
+  const pathD = 'M'+pts.join('L');
+  const fillD = pathD + `L${xs(totalD).toFixed(1)},${(PAD.t+ch).toFixed(1)}L${PAD.l.toFixed(1)},${(PAD.t+ch).toFixed(1)}Z`;
+
+  // Gradient
+  const gradId = 'egr' + Date.now();
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1a9850" stop-opacity=".5"/>
+        <stop offset="100%" stop-color="#1a9850" stop-opacity=".05"/>
+      </linearGradient>
+    </defs>
+    <path d="${fillD}" fill="url(#${gradId})"/>
+    <path d="${pathD}" fill="none" stroke="#1a9850" stroke-width="2" stroke-linejoin="round"/>
+  `;
+
+  // Axes
+  // Y ticks
+  const yTicks = 4;
+  for (let i=0;i<=yTicks;i++) {
+    const e = minE + (i/yTicks)*eRange;
+    const y = ys(e).toFixed(1);
+    svg.innerHTML += `<line x1="${PAD.l}" y1="${y}" x2="${PAD.l+cw}" y2="${y}" stroke="#eee" stroke-width="1"/>
+      <text x="${PAD.l-4}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="9" fill="#888">${Math.round(e)}m</text>`;
+  }
+  // X ticks
+  const xTicks = Math.min(5, Math.floor(totalD/200));
+  for (let i=0;i<=xTicks;i++) {
+    const d = (i/xTicks)*totalD;
+    const x = xs(d).toFixed(1);
+    const mi = (d/1609.34).toFixed(1);
+    svg.innerHTML += `<line x1="${x}" y1="${PAD.t}" x2="${x}" y2="${PAD.t+ch}" stroke="#eee" stroke-width="1"/>
+      <text x="${x}" y="${PAD.t+ch+14}" text-anchor="middle" font-size="9" fill="#888">${mi}mi</text>`;
+  }
+  // Baseline
+  svg.innerHTML += `<line x1="${PAD.l}" y1="${PAD.t+ch}" x2="${PAD.l+cw}" y2="${PAD.t+ch}" stroke="#ccc"/>
+    <line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${PAD.t+ch}" stroke="#ccc"/>`;
+
+  // Hover cursor line
+  const cursor = document.createElementNS('http://www.w3.org/2000/svg','line');
+  cursor.setAttribute('stroke','#2c3e50'); cursor.setAttribute('stroke-width','1');
+  cursor.setAttribute('stroke-dasharray','3,3'); cursor.style.display='none';
+  svg.appendChild(cursor);
+
+  const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dot.setAttribute('r','4'); dot.setAttribute('fill','#1a9850');
+  dot.setAttribute('stroke','#fff'); dot.setAttribute('stroke-width','2');
+  dot.style.display='none';
+  svg.appendChild(dot);
+
+  function onMove(e) {
+    const rect = svg.getBoundingClientRect();
+    const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const frac = Math.max(0, Math.min(1, (cx - PAD.l)/cw));
+    const targetD = frac * totalD;
+    // Find closest profile index
+    let best=0;
+    for (let i=0;i<dists.length;i++) if (Math.abs(dists[i]-targetD) < Math.abs(dists[best]-targetD)) best=i;
+    const px = xs(dists[best]).toFixed(1);
+    const py = ys(profile[best]).toFixed(1);
+    cursor.setAttribute('x1',px); cursor.setAttribute('y1',PAD.t);
+    cursor.setAttribute('x2',px); cursor.setAttribute('y2',PAD.t+ch);
+    cursor.style.display='';
+    dot.setAttribute('cx',px); dot.setAttribute('cy',py);
+    dot.style.display='';
+
+    // Move map marker
+    const coord = samples[best];
+    if (coord) {
+      if (!S.elevMarker) {
+        S.elevMarker = L.circleMarker([coord[0],coord[1]], {
+          radius:7, color:'#1a9850', fillColor:'#fff', fillOpacity:1, weight:2
+        }).addTo(map);
+      } else {
+        S.elevMarker.setLatLng([coord[0],coord[1]]);
+      }
+    }
+  }
+
+  svg.addEventListener('mousemove', onMove);
+  svg.addEventListener('touchmove', onMove, { passive:true });
+  svg.addEventListener('mouseleave', () => {
+    cursor.style.display='none'; dot.style.display='none';
+    if (S.elevMarker) { map.removeLayer(S.elevMarker); S.elevMarker=null; }
+  });
+}
+
+function drawSlopeOverlay(samples, profile, dists) {
+  clearSlopeOverlay();
+  if (samples.length < 2) return;
+  const layers = [];
+  for (let i=1;i<samples.length;i++) {
+    const d = dists[i]-dists[i-1];
+    if (d < 1) continue;
+    const rise = Math.abs(profile[i]-profile[i-1]);
+    const pct  = rise/d*100;
+    const color = slopeColor(pct);
+    const seg = L.polyline([samples[i-1],samples[i]],{
+      color, weight:4, opacity:.85, pane:'slopePane', interactive:false
+    });
+    layers.push(seg);
+  }
+  S.slopeLayer = L.layerGroup(layers, { pane:'slopePane' }).addTo(map);
+}
+
+function slopeColor(pct) {
+  // 0% = green, 8% = yellow, 15%+ = red
+  const t = Math.min(1, pct/15);
+  const r = Math.round(t<0.5 ? 2*t*255 : 255);
+  const g = Math.round(t<0.5 ? 255 : 2*(1-t)*255);
+  return `rgb(${r},${g},0)`;
+}
+
+function clearSlopeOverlay() {
+  if (S.slopeLayer) { map.removeLayer(S.slopeLayer); S.slopeLayer=null; }
+}
+
+function closeElevPanel() {
+  document.getElementById('elev-panel').classList.add('hidden');
+  clearSlopeOverlay();
+  if (S.elevMarker) { map.removeLayer(S.elevMarker); S.elevMarker=null; }
+  if (elevAbort) { elevAbort.abort(); elevAbort=null; }
+  S.activeStream = null;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════════════════════════
+function setStatus(msg, type='loading') {
+  const bar = document.getElementById('status-bar');
+  document.getElementById('status-text').textContent = msg;
+  bar.className = type;
+  if (!type) bar.className = '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// ESCAPE HELPERS
+// ═══════════════════════════════════════════════════════════
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ═══════════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════════
+async function init() {
+  // Restore persisted state
+  try {
+    const favs = JSON.parse(localStorage.getItem(LS_FAVS)||'[]');
+    S.favorites = new Set(favs);
+  } catch(e) {}
+  try {
+    S.darkMode = localStorage.getItem(LS_DARK) === '1';
+    if (S.darkMode) {
+      document.body.classList.add('dark-sidebar');
+      document.getElementById('toggle-dark').classList.add('active');
+    }
+  } catch(e) {}
+
+  // Setup controls
+  setupControls();
+
+  // 1. Load streams (fast, local file)
+  setStatus('Loading streams…', 'loading');
+  try {
+    S.streams   = await loadStreams();
+    S.processed = S.streams.map(s=>({...s}));
+  } catch(e) {
+    setStatus('Failed to load streams_data.json', 'error');
+    return;
+  }
+
+  // Show sidebar immediately (unmatched, for resilience)
+  setStatus(`${S.processed.length} streams loaded — fetching map data…`, 'loading');
+  renderSidebar();
+
+  // 2. Fetch OSM waterways and park boundary in parallel
+  let osmOk = false;
+  try {
+    const [osmWays, parkGeo] = await Promise.all([
+      fetchOSMWaterways(),
+      fetchParkBoundary(),
+    ]);
+
+    S.parkGeo  = parkGeo;
+    S.osmIndex = buildOSMIndex(osmWays);
+
+    if (osmWays.length === 0) {
+      setStatus('OSM data unavailable — streams shown without map geometry', 'error');
+    } else {
+      osmOk = true;
+      setStatus(`Matching ${S.processed.length} streams to ${osmWays.length} OSM ways…`, 'loading');
+    }
+
+    if (osmOk) {
+      matchStreams(S.processed, S.osmIndex);
+      applyEastProngOverride(S.processed, S.osmIndex);
+      buildStreamSegments(S.processed, S.parkGeo);
+
+      const matched = S.processed.filter(s=>s.matched).length;
+      renderStreams(S.processed);
+      renderSidebar();
+
+      setStatus(`${matched} of ${S.processed.length} streams mapped`, 'ok');
+    } else {
+      renderSidebar();
+    }
+  } catch(e) {
+    setStatus('Map data fetch failed — sidebar still usable', 'error');
+    renderSidebar();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
