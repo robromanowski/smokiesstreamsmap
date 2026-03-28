@@ -1175,20 +1175,50 @@ async function openElevPanel(stream) {
     const totalLen = segs.reduce((sum, seg) => sum + polylineLength(seg), 0);
     if (totalLen < 10) { loadEl.textContent = 'Stream too short.'; return; }
     const N = Math.min(80, Math.max(20, Math.ceil(totalLen / 80)));
-    const samples = [];
-    for (const seg of segs) {
+
+    // Build per-segment sample arrays so we can sort by elevation later
+    const segSamples = segs.map(seg => {
       const segLen = polylineLength(seg);
       const segN = Math.max(2, Math.round(N * segLen / totalLen));
-      samples.push(...samplePolyline(seg, segN));
+      return samplePolyline(seg, segN);
+    });
+
+    // Fetch elevations for all segments in one batch
+    const allSamplesFlat = segSamples.flat();
+    const allElevFlat = await fetchElevations(allSamplesFlat, elevAbort.signal);
+    if (!allElevFlat) return; // aborted
+
+    // Unpack elevations back into per-segment arrays
+    let offset = 0;
+    const segElevs = segSamples.map(s => {
+      const e = allElevFlat.slice(offset, offset + s.length);
+      offset += s.length;
+      return e;
+    });
+
+    // Compute mean elevation per segment; sort segments high→low (upstream→downstream)
+    const segOrder = segSamples.map((_, i) => i).sort((a, b) => {
+      const meanA = segElevs[a].reduce((s,v)=>s+v,0) / segElevs[a].length;
+      const meanB = segElevs[b].reduce((s,v)=>s+v,0) / segElevs[b].length;
+      return meanB - meanA; // highest first
+    });
+
+    // Within each segment, orient so first point is higher than last
+    const samples = [], elevations = [];
+    for (const i of segOrder) {
+      const pts = segSamples[i], elvs = segElevs[i];
+      const firstE = elvs[0], lastE = elvs[elvs.length-1];
+      if (lastE > firstE) {
+        samples.push(...[...pts].reverse());
+        elevations.push(...[...elvs].reverse());
+      } else {
+        samples.push(...pts);
+        elevations.push(...elvs);
+      }
     }
 
-    // Fetch elevations in chunks of 100
-    const elevations = await fetchElevations(samples, elevAbort.signal);
-    if (!elevations) return; // aborted
-
-    // Smooth
+    // Smooth then enforce monotone downhill
     const smoothed = smoothElev(elevations, 5);
-    // Enforce downhill direction
     const profile = enforceDownhill(smoothed);
 
     // Build cumulative distances
@@ -1252,19 +1282,12 @@ function smoothElev(elev, w=3) {
 }
 
 function enforceDownhill(elev) {
-  // Determine primary direction (which end is higher = upstream)
-  const n = elev.length;
-  const firstAvg = elev.slice(0,Math.floor(n/3)).reduce((a,b)=>a+b,0)/Math.floor(n/3);
-  const lastAvg  = elev.slice(Math.ceil(2*n/3)).reduce((a,b)=>a+b,0)/Math.floor(n/3);
-  // If last > first, stream profile goes upstream right-to-left; reverse for display
-  const arr = lastAvg > firstAvg ? [...elev].reverse() : [...elev];
-  // Running max from right (downstream end) to enforce monotone decrease
-  // Allow small bumps (noise up to 3m); only clip larger reversals
-  let runMin = arr[arr.length-1];
-  const out = [...arr];
-  for (let i = arr.length-2; i >= 0; i--) {
-    if (out[i] < runMin - 1) out[i] = runMin - 1; // don't go below downstream - small delta
-    runMin = Math.min(runMin, out[i]);
+  // Segments are already sorted high→low; just clip uphill noise with a running minimum
+  const out = [...elev];
+  let runMin = out[out.length - 1];
+  for (let i = out.length - 2; i >= 0; i--) {
+    if (out[i] < runMin) out[i] = runMin;
+    else runMin = out[i];
   }
   return out;
 }
