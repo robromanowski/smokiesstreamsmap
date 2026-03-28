@@ -295,6 +295,8 @@ const ELEV_URL = 'https://api.open-meteo.com/v1/elevation';
 const LS_FAVS  = 'smokies_favs_v1';
 const LS_DARK  = 'smokies_dark_v1';
 const LS_PARK  = 'smokies_park_v2';
+const LS_OSM   = 'smokies_osm_v1';
+const OSM_TTL  = 7 * 24 * 60 * 60 * 1000; // 1 week
 
 const GRADE_ORDER  = ['Excellent','Very Good','Good','Fair','Poor'];
 const GRADE_COLORS = { 'Excellent':'#1565c0','Very Good':'#27ae60','Good':'#f0a500','Fair':'#e06c2c','Poor':'#c0392b' };
@@ -684,32 +686,41 @@ async function loadStreams() {
 // OSM QUERY
 // ═══════════════════════════════════════════════════════════
 async function fetchOSMWaterways() {
+  // Return cached data if fresh
+  try {
+    const raw = localStorage.getItem(LS_OSM);
+    if (raw) {
+      const { ts, elements } = JSON.parse(raw);
+      if (Date.now() - ts < OSM_TTL && Array.isArray(elements) && elements.length > 0) {
+        setStatus('Map data loaded from cache — matching streams…', 'loading');
+        return elements;
+      }
+    }
+  } catch(e) {}
+
   const [s,w,n,e] = GRSM_BBOX;
-  // Try area-based query first, fall back to bbox-only
-  const queries = [
-    `[out:json][timeout:60];
+  const query = `[out:json][timeout:60];
 (
   way["waterway"~"^(stream|river|creek)$"]["name"](${s},${w},${n},${e});
-  way["waterway"="stream"]["name"](${s},${w},${n},${e});
   way["waterway"="river"]["name"](${s},${w},${n},${e});
 );
-out geom;`,
-  ];
+out geom;`;
 
   for (const url of OVERPASS_URLS) {
-    for (const q of queries) {
-      try {
-        const resp = await fetch(url, {
-          method: 'POST',
-          body: 'data=' + encodeURIComponent(q),
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          signal: AbortSignal.timeout(65000),
-        });
-        if (!resp.ok) continue;
-        const data = await resp.json();
-        if (data.elements && data.elements.length > 0) return data.elements;
-      } catch(e) { /* try next */ }
-    }
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        body: 'data=' + encodeURIComponent(query),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        signal: AbortSignal.timeout(65000),
+      });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (data.elements && data.elements.length > 0) {
+        try { localStorage.setItem(LS_OSM, JSON.stringify({ ts: Date.now(), elements: data.elements })); } catch(e) {}
+        return data.elements;
+      }
+    } catch(e) { /* try next */ }
   }
   return [];
 }
