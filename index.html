@@ -38,6 +38,7 @@
   --trout-brown: #8B4513;
 }
 body { font-family: system-ui,-apple-system,'Segoe UI',sans-serif; background: var(--bg); color: var(--text); height: 100dvh; overflow: hidden; }
+.hidden { display: none !important; }
 
 /* ── Layout ───────────────────────────────────────────────── */
 #app { display: flex; height: 100dvh; }
@@ -870,8 +871,6 @@ function flattenSegments(segments) {
     if (bestIdx === -1) break;
     used[bestIdx] = true;
     const next = bestReverse ? [...unique[bestIdx]].reverse() : unique[bestIdx];
-    // Only stitch if the gap is reasonable (< 2km); otherwise stop
-    if (bestDist > 2000) break;
     chain.push(...next);
   }
 
